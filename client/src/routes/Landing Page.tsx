@@ -1,8 +1,16 @@
 import React from 'react';
 import { Box, Paper, TextField, Button, Typography, CssBaseline } from '@mui/material';
 import 'fontsource-inter/latin.css';  // Importing Inter font
+import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate
 
 function LandingPage() {
+  const navigate = useNavigate(); // Get the navigate function from React Router
+
+  const handleGetStarted = () => {
+    // When the "Get Started" button is clicked, navigate to the plan page
+    navigate('/plan');
+  };
+
   return (
     <Box
       sx={{
@@ -21,12 +29,12 @@ function LandingPage() {
       <Typography
         sx={{
           position: 'absolute',
-          top: 30, // Adjust as needed
-          left: 50, // Adjust as needed
+          top: 30,
+          left: 50,
           fontFamily: 'Inter, sans-serif',
           fontSize: '1.75rem',
           color: 'black',
-          m: 2, // Add margin for spacing
+          m: 2,
         }}
       >
         Roadmap.ai
@@ -51,7 +59,7 @@ function LandingPage() {
           sx={{
             fontWeight: 700,
             fontSize: '2.4rem',
-            lineHeight: '0.3', // Add this line to ensure single line display
+            lineHeight: '0.3',
           }}
         >
           Transition Into Product
@@ -94,6 +102,7 @@ function LandingPage() {
               bgcolor: 'grey.900',
             },
           }}
+          onClick={handleGetStarted} // Add onClick event to navigate to the plan page
         >
           Get Started
         </Button>
