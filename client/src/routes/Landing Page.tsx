@@ -1,14 +1,38 @@
-import React from 'react';
-import { Box, Paper, TextField, Button, Typography, CssBaseline } from '@mui/material';
-import 'fontsource-inter/latin.css';  // Importing Inter font
-import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate
+import React, { useState } from 'react';
+import {
+  Box,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  CssBaseline,
+} from '@mui/material';
+import 'fontsource-inter/latin.css'; // Importing Inter font
+import { Link, useNavigate } from 'react-router-dom';
 
 function LandingPage() {
-  const navigate = useNavigate(); // Get the navigate function from React Router
+  const navigate = useNavigate();
+  const [userInput, setUserInput] = useState<string>('');
 
-  const handleGetStarted = () => {
-    // When the "Get Started" button is clicked, navigate to the plan page
-    navigate('/plan');
+  const handleGetStarted = async () => {
+    try {
+      const response = await fetch('/api/generate_plan', { // Changed the API endpoint
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userInput }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        navigate('/plan');
+      } else {
+        console.error('API request failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   return (
@@ -79,17 +103,8 @@ function LandingPage() {
           multiline
           minRows={1}
           maxRows={4}
-          sx={{
-            '.MuiFilledInput-root': {
-              bgcolor: 'background.paper',
-              '&:hover': {
-                bgcolor: 'background.paper',
-              },
-              '&.Mui-focused': {
-                bgcolor: 'background.paper',
-              },
-            },
-          }}
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
         />
         <Button
           variant="contained"
@@ -102,7 +117,7 @@ function LandingPage() {
               bgcolor: 'grey.900',
             },
           }}
-          onClick={handleGetStarted} // Add onClick event to navigate to the plan page
+          onClick={handleGetStarted}
         >
           Get Started
         </Button>
