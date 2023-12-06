@@ -1,5 +1,3 @@
-# api_request.py
-
 import os
 import requests
 from dotenv import load_dotenv
@@ -10,10 +8,8 @@ def make_openai_request(prompt):
     api_key = os.getenv("OPEN_AI_API_KEY")
     if not api_key:
         raise ValueError("API key not found in .env file")
-    
-    assistant_id = os.getenv("OPEN_AI_ASSISTANT_ID")
 
-    endpoint = f"https://api.openai.com/v1/engines/gpt-3.5-turbo/completions"  # Use davinci-codex for assistant
+    endpoint = "https://api.openai.com/v1/chat/completions"
 
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -21,8 +17,9 @@ def make_openai_request(prompt):
     }
 
     data = {
-        "prompt": prompt,
-        "assistant": assistant_id  # Specify the assistant ID here
+        "model": "gpt-3.5-turbo",
+        "messages": [{"role": "system", "content": "You are a poetic assistant, skilled in explaining complex programming concepts with creative flair."},
+                    {"role": "user", "content": prompt}]
     }
 
     response = requests.post(endpoint, json=data, headers=headers)
@@ -33,6 +30,6 @@ def make_openai_request(prompt):
         raise Exception(f"API request failed with status code {response.status_code}: {response.text}")
 
 if __name__ == "__main__":
-    prompt = "Your prompt here"
+    prompt = "Compose a poem that explains the concept of recursion in programming."
     result = make_openai_request(prompt)
     print(result)
