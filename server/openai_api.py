@@ -18,7 +18,7 @@ def make_openai_request(prompt):
 
     data = {
         "model": "gpt-3.5-turbo",
-        "messages": [{"role": "system", "content": "You are a poetic assistant, skilled in explaining complex programming concepts with creative flair."},
+        "messages": [{"role": "system", "content": "You make a step by step plan for someone to transition into product management"},
                     {"role": "user", "content": prompt}]
     }
 
@@ -30,6 +30,6 @@ def make_openai_request(prompt):
         raise Exception(f"API request failed with status code {response.status_code}: {response.text}")
 
 if __name__ == "__main__":
-    prompt = "Compose a poem that explains the concept of recursion in programming."
+    prompt = input()
     result = make_openai_request(prompt)
     print(result)
