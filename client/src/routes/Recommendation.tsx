@@ -1,14 +1,19 @@
 import React, { useEffect } from 'react';
-import { Box, Paper, Typography } from '@mui/material';
-import { useLocation } from "react-router-dom";
+import { Box, Paper, Typography, CssBaseline, Button } from '@mui/material';
+import { useLocation, useNavigate } from "react-router-dom";
 
 function Recommendation() {
   const location = useLocation();
   const new_recommendation = location.state;
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log(new_recommendation);
   }, []); 
+
+  const handleRestart = () => {
+    navigate('/');
+  };
 
   return (
     <Box
@@ -21,18 +26,35 @@ function Recommendation() {
         bgcolor: 'background.default',
         color: 'text.primary',
         p: 3,
+        position: 'relative',
       }}
     >
+      <CssBaseline />
+      <Typography
+        sx={{
+          position: 'absolute',
+          top: 30,
+          left: 50,
+          fontFamily: 'Inter, sans-serif',
+          fontSize: '1.75rem',
+          color: 'black',
+          m: 2,
+        }}
+      >
+        Roadmap.ai
+      </Typography>
       <Paper
-        elevation={0}
+        elevation={3}
         sx={{
           p: 3,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           width: '100%',
-          maxWidth: 1000,
+          maxWidth: 800, // Adjust the width as needed
           mt: 4,
+          borderRadius: '12px', // Add some border radius for a card-like appearance
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Add a subtle shadow
         }}
       >
         <Typography
@@ -43,6 +65,7 @@ function Recommendation() {
           sx={{
             fontWeight: 700,
             fontSize: '2.5rem',
+            color: 'black', // Customize the title color
           }}
         >
           Your Personalized Recommendation
@@ -54,6 +77,21 @@ function Recommendation() {
         >
           {new_recommendation.recommendation}
         </Typography>
+        <Button
+          variant="contained"
+          size="large"
+          fullWidth
+          sx={{
+            mt: 2,
+            bgcolor: 'black',
+            '&:hover': {
+              bgcolor: 'grey.900',
+            },
+          }}
+          onClick={handleRestart}
+        >
+          Restart
+        </Button>
       </Paper>
     </Box>
   );
