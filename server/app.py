@@ -7,23 +7,25 @@ app = Flask(__name__)
 def hello_world():
     return {"message": 'Hello World!'}
 
-@app.route('/api/generate_plan', methods=['POST'])
-def generate_plan():
-    print("Generating plan")
+@app.route('/api/generate_recommendation', methods=['POST'])
+def generate_recommendation():
+    print("Generating recommendation")
     try:
-        data = request.get_json()
-        print(data)
+        user_data = request.get_json()
+        print(f"\n\nHere's my user data: {user_data}\n\n")
 
-        user_input = data.get('userInput', '')
+        user_input = user_data.get('userInput', '')
 
         # Call the OpenAI API with user input using the imported function
         openai_response = make_openai_request(user_input)
+        print(f"\n\nHere's the OpenAI response: {openai_response}\n\n")
 
-        # Extract the plan from the OpenAI response (customize this part)
-        plan = openai_response.get('choices')[0].get('message').get('content')
+        # Extract the plan from the OpenAI response 
+        recommendation = openai_response.get('choices')[0].get('message').get('content')
+        print(f"\n\nHere's the recommendation: {recommendation}\n\n")
 
         # Return the plan as a JSON response
-        return jsonify({'plan': plan})
+        return jsonify({'recommendation': recommendation})
 
     except Exception as e:
         return jsonify({'error': str(e)})
