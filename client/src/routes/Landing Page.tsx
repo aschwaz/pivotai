@@ -15,8 +15,11 @@ function LandingPage() {
   const [userInput, setUserInput] = useState<string>('');
 
   const handleGetStarted = async () => {
+    // Check that user has inputted some text into the input field.
+    // If not, render a warning that the form field is empty.
+    // If so, submit the form using a Fetch API call to `/api/generate_recommendation`.
     try {
-      const response = await fetch('/api/generate_plan', { // Changed the API endpoint
+      const response = await fetch('/api/generate_recommendation', { // Changed the API endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,8 +28,11 @@ function LandingPage() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        navigate('/plan');
+        const new_recommendation = await response.json();
+        // console.log("We got some juicy data!");
+        // console.log(new_recommendation)
+        // console.log("Whoooooo!")
+        navigate('/recommendation', { state: new_recommendation });
       } else {
         console.error('API request failed');
       }
@@ -71,7 +77,7 @@ function LandingPage() {
           flexDirection: 'column',
           alignItems: 'center',
           width: '100%',
-          maxWidth: 480,
+          maxWidth: 650,
           mt: 4,
         }}
       >
@@ -82,26 +88,26 @@ function LandingPage() {
           align="center"
           sx={{
             fontWeight: 700,
-            fontSize: '2.4rem',
+            fontSize: '2.5rem',
             lineHeight: '0.3',
           }}
         >
-          Transition Into Product
+          Assess Your Product Intuition
         </Typography>
         <Typography
           variant="subtitle1"
           align="center"
-          sx={{ fontWeight: 400, fontSize: '1.25rem', mt: 1, mb: 4 }}
+          sx={{ fontWeight: 400, fontSize: '1.4rem', mt: 1, mb: 4 }}
         >
-          With a personalized, actionable plan
+          See your strengths and use them to break into industry
         </Typography>
         <TextField
           fullWidth
           variant="filled"
-          label="What do you currently do for work? Be as descriptive as possible!"
+          label="What are you skilled in now? And what type of products do you want to build?"
           margin="normal"
           multiline
-          minRows={1}
+          minRows={2}
           maxRows={4}
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}

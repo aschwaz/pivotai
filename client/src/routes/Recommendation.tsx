@@ -1,25 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Paper, Typography } from '@mui/material';
+import { useLocation } from "react-router-dom";
 
-function Plan() {
-  const [planData, setPlanData] = useState<string[]>([]);
+function Recommendation() {
+  const location = useLocation();
+  const new_recommendation = location.state;
 
   useEffect(() => {
-    const fetchPlanData = async () => {
-      try {
-        const response = await fetch('/api/generate_plan');
-        if (response.ok) {
-          const data = await response.json();
-          setPlanData([data.plan]);
-        } else {
-          console.error('API request failed');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
-    fetchPlanData();
+    console.log(new_recommendation);
   }, []); 
 
   return (
@@ -43,7 +31,7 @@ function Plan() {
           flexDirection: 'column',
           alignItems: 'center',
           width: '100%',
-          maxWidth: 480,
+          maxWidth: 1000,
           mt: 4,
         }}
       >
@@ -54,26 +42,21 @@ function Plan() {
           align="center"
           sx={{
             fontWeight: 700,
-            fontSize: '2.4rem',
+            fontSize: '2.5rem',
           }}
         >
-          Your Step-by-Step Plan
+          Your Personalized Recommendation
         </Typography>
         <Typography
           variant="body1"
           align="center"
           sx={{ fontSize: '1.25rem', mt: 2, mb: 4 }}
         >
-          {planData.map((step, index) => (
-            <div key={index}>
-              {step}
-              <br />
-            </div>
-          ))}
+          {new_recommendation.recommendation}
         </Typography>
       </Paper>
     </Box>
   );
 }
 
-export default Plan;
+export default Recommendation;

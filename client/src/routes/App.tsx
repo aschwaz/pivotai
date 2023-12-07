@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './Landing Page'; // Update import path for LandingPage
-import Plan from './Plan'; // Update import path for Plan
+import Recommendation from './Recommendation';
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
       <Routes>
         {/* Define routes */}
         <Route path="/" element={<LandingPage/>} /> {/* Landing page route */}
-        <Route path="/plan" element={<Plan />} /> Plan page route
+        <Route path="/recommendation" element={<Recommendation />} /> Plan page route
       </Routes>
     </Router>
   );
