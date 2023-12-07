@@ -7,6 +7,10 @@ app = Flask(__name__)
 def hello_world():
     return {"message": 'Hello World!'}
 
+@app.post('/api/generate_questions')
+def generate_questions():
+    pass
+
 @app.route('/api/generate_recommendation', methods=['POST'])
 def generate_recommendation():
     print("Generating recommendation")
