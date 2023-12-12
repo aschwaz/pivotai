@@ -64,7 +64,7 @@ def generate_assessment_questions(prompt):
     The first three questions should be easy, medium, and hard, respectively, and focus on engineering.
     The second three questions should be easy, medium, and hard, respectively, and focus on design.
     The third three questions should be easy, medium, and hard, respectively, and focus on business.
-    Please number each question with a number between 1 and 9.
+    Please number each question with a number between 1 and 9. Label each question with its difficulty level and type (either design, engineering or business) too.
     """
 
     generated_questions = []
