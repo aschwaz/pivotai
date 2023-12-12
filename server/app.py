@@ -1,5 +1,5 @@
-from flask import Flask, request, jsonify
-from openai_api import make_openai_request 
+from flask import Flask, request, jsonify, make_response
+from openai_api import make_openai_request, generate_assessment_questions 
 
 app = Flask(__name__)
 
@@ -7,9 +7,30 @@ app = Flask(__name__)
 def hello_world():
     return {"message": 'Hello World!'}
 
-@app.post('/api/generate_questions')
+@app.route('/api/generate_questions', methods=['POST', 'GET'])
 def generate_questions():
-    pass
+    print("Generating questions")
+    try:
+        user_data = request.get_json()
+        print(f"\n\nHere's my user data: {user_data}\n\n")
+
+        user_input = user_data.get('userInput', '')
+        print(f"\nHere's the user input: {user_input}\n\n")
+        
+        openai_response = generate_assessment_questions(user_input)
+        print(f"\n\nHere's the OpenAI response: {openai_response}\n\n")
+
+        # Extract the questions from the OpenAI response 
+        # questions = openai_response.get('choices')[0].get('message').get('content')
+        questions = openai_response
+        print(f"\n\nHere's are the questions: {questions}\n\n")
+
+        # Return the plan as a JSON response
+        return make_response(jsonify({'questions': questions}), 200)
+
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 401)
+
 
 @app.route('/api/generate_recommendation', methods=['POST'])
 def generate_recommendation():
