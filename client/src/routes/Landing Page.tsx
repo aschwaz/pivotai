@@ -14,6 +14,32 @@ function LandingPage() {
   const navigate = useNavigate();
   const [userInput, setUserInput] = useState<string>('');
 
+  const handleStartAssessment = async () => {
+    let response;
+    console.log("trying")
+    try {
+      response = await fetch('api/generate_questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userInput }),
+      });
+  
+      if (response.ok) {
+        const new_questions = await response.json();
+        console.log("whats happening")
+        console.log(new_questions);
+        navigate('/assessment', { state: new_questions });
+      } else {
+        console.error('API request failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+// MOVE TO ASSESSMENT PAGE
   const handleGetStarted = async () => {
     // Check that user has inputted some text into the input field.
     // If not, render a warning that the form field is empty.
@@ -123,7 +149,7 @@ function LandingPage() {
               bgcolor: 'grey.900',
             },
           }}
-          onClick={handleGetStarted}
+          onClick={handleStartAssessment}
         >
           Get Started
         </Button>

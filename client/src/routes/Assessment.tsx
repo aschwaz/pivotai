@@ -1,45 +1,65 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Paper, Typography, TextField, Button } from '@mui/material';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Box, Paper, Typography, TextField, Button, CssBaseline } from '@mui/material';
+import { useNavigate, useLocation } from 'react-router-dom';
+
+interface Question {
+  id: string;
+  content: string;
+}
 
 function Assessment() {
-  const { pillar } = useParams(); // Assuming `pillar` is always a string.
   const navigate = useNavigate();
-  const [answer, setAnswer] = useState('');
-  const [questions, setQuestions] = useState([]);
+  const location = useLocation<{ state: { questions: { choices: { message: { content: string } }[] } } }>();
+  const allQuestions = location.state.questions.choices[0].message.content;
 
-  // Parse `questionIndex` safely, ensuring that it's a valid number before using it.
-  const questionIndex = parseInt(useParams().questionIndex || '', 10);
-  const totalQuestions = questions.length;
+  const parseQuestions = (questionsText: string): Question[] => {
+    const lines = questionsText.split('\n');
+    const questions: Question[] = [];
+    let currentQuestion: Question | null = null;
 
-  // Fetch questions whenever `pillar` changes.
-  useEffect(() => {
-    fetch(`/api/assessment_questions/${pillar}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setQuestions(data.questions);
-      })
-      .catch((error) => {
-        console.error('Error fetching questions:', error);
-      });
-  }, [pillar]);
-
-  // Redirect if `questionIndex` is out of bounds.
-  useEffect(() => {
-    if (isNaN(questionIndex) || questionIndex > totalQuestions || questionIndex <= 0) {
-      navigate('/thank-you');
+    for (const line of lines) {
+      if (line.match(/^\d+\./)) {
+        // New question detected
+        if (currentQuestion) {
+          questions.push(currentQuestion);
+        }
+        const content = line.replace(/^\d+\./, '').trim();
+        currentQuestion = {
+          id: `question-${questions.length}`,
+          content,
+        };
+      } else if (currentQuestion) {
+        // Append to the current question
+        currentQuestion.content += `\n${line}`;
+      }
     }
-  }, [questionIndex, navigate, totalQuestions]);
 
-  // Function to handle navigating to the next question.
+    if (currentQuestion) {
+      questions.push(currentQuestion);
+    }
+
+    return questions;
+  };
+
+  const [questions, setQuestions] = useState<Question[]>(parseQuestions(allQuestions));
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [answer, setAnswer] = useState<string>('');
+
   const handleNextQuestion = () => {
-    if (questionIndex < totalQuestions) {
-      navigate(`/assessment/${pillar}/${questionIndex + 1}`);
+    const nextIndex = currentQuestionIndex + 1;
+    if (nextIndex < questions.length) {
+      setCurrentQuestionIndex(nextIndex);
+      setAnswer(''); // Reset the answer field when moving to the next question
     } else {
-      // If it's the last question, navigate to a 'results' page or similar
-      navigate('/results');
+      navigate('/results'); // Navigate to the results page after the last question
     }
   };
+
+  if (questions.length === 0 || currentQuestionIndex >= questions.length) {
+    return null; // Or return a loading indicator or appropriate UI
+  }
+
+  const currentQuestion = questions[currentQuestionIndex];
 
   return (
     <Box
@@ -52,8 +72,10 @@ function Assessment() {
         bgcolor: 'background.default',
         color: 'text.primary',
         p: 3,
+        position: 'relative',
       }}
     >
+      <CssBaseline />
       <Paper
         elevation={0}
         sx={{
@@ -62,30 +84,24 @@ function Assessment() {
           flexDirection: 'column',
           alignItems: 'center',
           width: '100%',
-          maxWidth: 1000,
+          maxWidth: 650,
           mt: 4,
         }}
       >
         <Typography
-          variant="h4"
-          component="h1"
-          gutterBottom
+          variant="h6"
+          component="h2"
           align="center"
-          sx={{
-            fontWeight: 700,
-            fontSize: '2.5rem',
-          }}
+          sx={{ fontWeight: 500, mt: 1, mb: 2 }}
         >
-          {pillar} Pillar Assessment
+          Question {currentQuestionIndex + 1}
         </Typography>
         <Typography
           variant="body1"
           align="center"
-          sx={{ fontSize: '1.25rem', mt: 2, mb: 4 }}
+          sx={{ fontWeight: 400, fontSize: '1rem', mt: 1, mb: 4 }}
         >
-          Question {isNaN(questionIndex) ? '' : questionIndex}:
-          <br />
-          {questions[questionIndex - 1]}
+          {currentQuestion.content}
         </Typography>
         <TextField
           fullWidth
@@ -102,13 +118,7 @@ function Assessment() {
           variant="contained"
           size="large"
           fullWidth
-          sx={{
-            mt: 2,
-            bgcolor: 'primary.main',
-            '&:hover': {
-              bgcolor: 'primary.dark',
-            },
-          }}
+          sx={{ mt: 2, bgcolor: 'black', '&:hover': { bgcolor: 'grey.900' } }}
           onClick={handleNextQuestion}
         >
           Next Question
@@ -119,4 +129,3 @@ function Assessment() {
 }
 
 export default Assessment;
-
