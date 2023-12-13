@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Paper, Typography, TextField, Button, CssBaseline } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -12,31 +12,32 @@ interface Question {
 function Assessment() {
   const navigate = useNavigate();
   const location = useLocation();
-  const allQuestions = location.state?.questions.choices[0].message.content || "";
-
-  const parseQuestions = (questionsText: string): Question[] => {
-    const lines = questionsText.split('\n');
-    const questions: Question[] = [];
-
-    for (const line of lines) {
-      const matches = line.match(/^(\d+)\.\s\(([^,]+),\s([^)]+)\)\s(.*)/);
-      if (matches && matches.length === 5) {
-        const [_, id, difficulty, pillar, content] = matches;
-        questions.push({
-          id,
-          content,
-          pillar,
-          difficulty,
-        });
-      }
-    }
-
-    return questions;
-  };
-
-  const [questions, setQuestions] = useState<Question[]>(parseQuestions(allQuestions));
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState('');
+
+  useEffect(() => {
+    const allQuestions = location.state?.questions.choices[0].message.content || '';
+    const parseQuestions = (questionsText: string): Question[] => {
+      const lines = questionsText.split('\n');
+      const questions: Question[] = [];
+      for (const line of lines) {
+        const matches = line.match(/^(\d+)\.\s\(([^,]+),\s([^)]+)\)\s(.*)/);
+        if (matches && matches.length === 5) {
+          const [_, id, difficulty, pillar, content] = matches;
+          questions.push({
+            id,
+            content,
+            pillar,
+            difficulty,
+          });
+        }
+      }
+      return questions;
+    };
+
+    setQuestions(parseQuestions(allQuestions));
+  }, [location.state]);
 
   const handleNextQuestion = () => {
     const nextIndex = currentQuestionIndex + 1;
@@ -49,7 +50,7 @@ function Assessment() {
   };
 
   if (questions.length === 0 || currentQuestionIndex >= questions.length) {
-    return null;
+    return <Typography>No questions available.</Typography>;
   }
 
   const currentQuestion = questions[currentQuestionIndex];
