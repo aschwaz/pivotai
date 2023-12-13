@@ -6,19 +6,19 @@ import {
   Button,
   Typography,
   CssBaseline,
+  CircularProgress
 } from '@mui/material';
-import 'fontsource-inter/latin.css'; // Importing Inter font
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function LandingPage() {
   const navigate = useNavigate();
-  const [userInput, setUserInput] = useState<string>('');
+  const [userInput, setUserInput] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleStartAssessment = async () => {
-    let response;
-    console.log("trying")
+    setLoading(true);
     try {
-      response = await fetch('api/generate_questions', {
+      const response = await fetch('api/generate_questions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,44 +28,26 @@ function LandingPage() {
   
       if (response.ok) {
         const new_questions = await response.json();
-        console.log("whats happening")
-        console.log(new_questions);
-        navigate('/assessment', { state: new_questions });
+        console.log('Questions from API:', new_questions);
+        navigate('/assessment', { state: { questions: new_questions } });
       } else {
-        console.error('API request failed');
+        throw new Error('API request failed with status ' + response.status);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error in handleStartAssessment:', error);
+      // Handle error, potentially set an error state and display a message to the user
+    } finally {
+      setLoading(false);
     }
   };
 
-// MOVE TO ASSESSMENT PAGE
-  const handleGetStarted = async () => {
-    // Check that user has inputted some text into the input field.
-    // If not, render a warning that the form field is empty.
-    // If so, submit the form using a Fetch API call to `/api/generate_recommendation`.
-    try {
-      const response = await fetch('/api/generate_recommendation', { // Changed the API endpoint
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userInput }),
-      });
-
-      if (response.ok) {
-        const new_recommendation = await response.json();
-        // console.log("We got some juicy data!");
-        // console.log(new_recommendation)
-        // console.log("Whoooooo!")
-        navigate('/recommendation', { state: new_recommendation });
-      } else {
-        console.error('API request failed');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -159,3 +141,4 @@ function LandingPage() {
 }
 
 export default LandingPage;
+

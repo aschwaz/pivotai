@@ -1,43 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Paper, Typography, TextField, Button, CssBaseline } from '@mui/material';
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  CssBaseline,
+} from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
-
-interface Question {
-  id: string;
-  content: string;
-  pillar: string;
-  difficulty: string;
-}
 
 function Assessment() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<string[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState('');
 
   useEffect(() => {
-    const allQuestions = location.state?.questions.choices[0].message.content || '';
-    const parseQuestions = (questionsText: string): Question[] => {
-      const lines = questionsText.split('\n');
-      const questions: Question[] = [];
-      for (const line of lines) {
-        const matches = line.match(/^(\d+)\.\s\(([^,]+),\s([^)]+)\)\s(.*)/);
-        if (matches && matches.length === 5) {
-          const [_, id, difficulty, pillar, content] = matches;
-          questions.push({
-            id,
-            content,
-            pillar,
-            difficulty,
-          });
-        }
-      }
-      return questions;
-    };
+    // Assume location.state has the correct structure: { questions: { questions: ... } }
+    const allQuestionsText = location.state?.questions?.questions?.choices?.[0]?.message?.content;
 
-    setQuestions(parseQuestions(allQuestions));
-  }, [location.state]);
+    if (allQuestionsText) {
+      // Split the text by newlines to get individual questions
+      const parsedQuestions = allQuestionsText.split('\n').filter((line) => line.trim() !== '');
+
+      if (parsedQuestions.length > 0) {
+        setQuestions(parsedQuestions);
+      }
+    }
+  }, [location]);
 
   const handleNextQuestion = () => {
     const nextIndex = currentQuestionIndex + 1;
@@ -54,6 +45,10 @@ function Assessment() {
   }
 
   const currentQuestion = questions[currentQuestionIndex];
+  const questionParts = currentQuestion.split(') ');
+
+  // Remove the "1.(" from the category
+  const category = questionParts[0].replace(/^[0-9]+\.\s*\(/, '');
 
   return (
     <Box
@@ -88,23 +83,21 @@ function Assessment() {
           align="center"
           sx={{ fontWeight: 'bold', marginBottom: 2 }}
         >
-          Question {currentQuestion.id}
+          Question {currentQuestionIndex + 1}
         </Typography>
         <Typography
-          variant="h6"
-          component="div"
+          variant="subtitle1"
           align="center"
-          sx={{ fontWeight: 'bold' }}
+          sx={{ fontWeight: 'bold', fontSize: '1rem', marginBottom: 1 }}
         >
-          {currentQuestion.difficulty}, {currentQuestion.pillar}
+          {category}
         </Typography>
-        <Box sx={{ height: 24 }} />
         <Typography
           variant="body1"
           align="center"
           sx={{ fontWeight: 400, fontSize: '1rem', marginBottom: 2 }}
         >
-          {currentQuestion.content}
+          {questionParts[1]}
         </Typography>
         <TextField
           fullWidth
