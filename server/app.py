@@ -1,5 +1,11 @@
 from flask import Flask, request, jsonify, make_response
 from openai_api import make_openai_request, generate_assessment_questions 
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+
+
+uri = "mongodb+srv://andrewschwartz525:<password>@cluster0.wbmprpy.mongodb.net/?retryWrites=true&w=majority"
+
 
 app = Flask(__name__)
 
