@@ -11,6 +11,9 @@ flask-migrate = "*"
 sqlalchemy = "*"
 requests = "*"
 python-dotenv = "*"
+mongoengine = "*"
+pymongo = "*"
+flask-cors = "*"
 
 [dev-packages]
 
