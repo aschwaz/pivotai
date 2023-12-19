@@ -1,9 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Radar } from 'react-chartjs-2';
+import { useLocation } from 'react-router-dom';
 
 const Results = () => {
-    const [data, setData] = useState({
+    const location = useLocation();
+    const [skillData, setSkillData] = useState(location.state?.skillData);
+
+    useEffect(() => {
+        // If there's no skillData from the location state, fetch it from the backend
+        if (!skillData) {
+            axios.get('/results')
+                .then(response => {
+                    // Assuming the backend sends the data in the format suitable for the radar chart
+                    setSkillData(response.data);
+                })
+                .catch(error => {
+                    console.error('Error fetching results:', error);
+                });
+        }
+    }, [skillData]);
+
+    const radarData = {
         labels: ['Engineering', 'Design', 'Business'],
         datasets: [
             {
@@ -11,36 +29,18 @@ const Results = () => {
                 backgroundColor: 'rgba(34, 202, 236, .2)',
                 borderColor: 'rgba(34, 202, 236, 1)',
                 pointBackgroundColor: 'rgba(34, 202, 236, 1)',
-                poingBorderColor: '#fff',
+                pointBorderColor: '#fff',
                 pointHoverBackgroundColor: '#fff',
                 pointHoverBorderColor: 'rgba(34, 202, 236, 1)',
-                data: [0, 0, 0, 0, 0, 0] // Placeholder data
+                data: skillData ? [skillData.engineering, skillData.design, skillData.business] : [0, 0, 0]
             }
         ]
-    });
-
-    useEffect(() => {
-        // Fetch data from the backend when the component mounts
-        axios.get('/api/skill-data')
-            .then(response => {
-                // Update the state with the fetched data
-                setData(prevData => ({
-                    ...prevData,
-                    datasets: [{
-                        ...prevData.datasets[0],
-                        data: response.data.skills // Assuming the data is in an array
-                    }]
-                }));
-            })
-            .catch(error => {
-                console.error('Error fetching data: ', error);
-            });
-    }, []);
+    };
 
     return (
-        <div>
+        <div style={{ width: '50%', margin: 'auto', marginTop: '30px' }}>
             <h1>User Skill Graph</h1>
-            {/* <Radar data={data} /> */}
+            {skillData && <Radar data={radarData} />}
         </div>
     );
 };

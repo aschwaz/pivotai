@@ -9,6 +9,11 @@ import {
   CircularProgress
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+const axiosInstance = axios.create({
+  baseURL: 'http://127.0.0.1:5000/'
+});
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -18,18 +23,12 @@ function LandingPage() {
   const handleStartAssessment = async () => {
     setLoading(true);
     try {
-      const response = await fetch('api/generate_questions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userInput }),
-      });
-  
-      if (response.ok) {
-        const new_questions = await response.json();
-        console.log('Questions from API:', new_questions);
-        navigate('/assessment', { state: { questions: new_questions } });
+      // Sending a POST request to the '/initial-prompt' endpoint with the user's input
+      const response = await axiosInstance.post('/api/initial-prompt', { prompt: userInput });
+
+      if (response.status === 200) {
+        // Navigating to the Assessment page with the questions received from the backend
+        navigate('/assessment/1', { state: { questions: response.data.questions } });
       } else {
         throw new Error('API request failed with status ' + response.status);
       }
@@ -105,9 +104,9 @@ function LandingPage() {
         <Typography
           variant="subtitle1"
           align="center"
-          sx={{ fontWeight: 400, fontSize: '1.4rem', mt: 1, mb: 4 }}
+          sx={{ fontWeight: 400, fontSize: '1.5rem', mt: 1, mb: 4 }}
         >
-          See your strengths and use them to break into industry
+          See your strengths & break into industry
         </Typography>
         <TextField
           fullWidth
@@ -141,4 +140,3 @@ function LandingPage() {
 }
 
 export default LandingPage;
-
