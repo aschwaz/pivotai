@@ -21,14 +21,16 @@ function Assessment() {
   const location = useLocation();
   const { questionIndex } = useParams();
   const [questions, setQuestions] = useState<string[]>([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(parseInt(questionIndex || '0'));
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(
+    questionIndex ? parseInt(questionIndex) - 1 : 0
+  );
   const [answer, setAnswer] = useState<string>('');
   const [answers, setAnswers] = useState<Answer[]>([]);
 
   useEffect(() => {
     const state = location.state as AssessmentState;
     if (state && state.questions) {
-      setQuestions(state.questions.filter((question) => question.trim() !== '')); // Filter out empty strings
+      setQuestions(state.questions.filter((question) => question.trim() !== ''));
     } else {
       navigate('/');
     }
@@ -36,7 +38,7 @@ function Assessment() {
 
   useEffect(() => {
     if (questions.length && questionIndex) {
-      setCurrentQuestionIndex(parseInt(questionIndex));
+      setCurrentQuestionIndex(parseInt(questionIndex) - 1);
     }
   }, [questions, questionIndex]);
 
@@ -50,17 +52,17 @@ function Assessment() {
       return;
     }
 
-    const newAnswers = [...answers, { text: answer, pillar: questions[currentQuestionIndex].split(': ')[0].trim() }];
+    const newAnswers = [
+      ...answers,
+      { text: answer, pillar: questions[currentQuestionIndex].split(': ')[0].trim() }
+    ];
     setAnswers(newAnswers);
 
     if (currentQuestionIndex < questions.length - 1) {
-      const nextIndex = currentQuestionIndex + 1;
-      setCurrentQuestionIndex(nextIndex);
-      navigate(`/assessment/${nextIndex}`, { state: { questions } });
+      navigate(`/assessment/${currentQuestionIndex + 2}`, { state: { questions } }); // +2 because we subtract -1 earlier
       setAnswer('');
     } else {
       try {
-        // Send the answers to your Flask API using axiosInstance
         const response = await axiosInstance.post('/api/process-answers', { answers: newAnswers });
         navigate('/results', { state: { skillData: response.data } });
       } catch (error) {
@@ -70,18 +72,16 @@ function Assessment() {
     }
   };
 
-  // Total question count (use questions.length)
   const totalQuestions = questions.length;
 
-  // If we have no questions or are at an invalid question index, redirect or show a message
   if (!questions.length || currentQuestionIndex >= questions.length) {
     return <Typography>No questions available or invalid question index.</Typography>;
   }
 
   const currentQuestionParts = questions[currentQuestionIndex].split(': ');
-  const questionNumber = currentQuestionIndex ;
+  const questionNumber = currentQuestionIndex + 1; // Display question number correctly
   const pillarDifficulty = currentQuestionParts[0].trim();
-  const questionText = currentQuestionParts.slice(1).join(': ').replace(/^\d+\.\s/, ''); // Remove question number
+  const questionText = currentQuestionParts.slice(1).join(': ').replace(/^\d+\.\s/, '');
 
   return (
     <Box
@@ -136,7 +136,7 @@ function Assessment() {
           sx={{ mt: 2, bgcolor: 'black', '&:hover': { bgcolor: 'grey.900' } }}
           onClick={handleNextQuestion}
         >
-          {currentQuestionIndex < totalQuestions - 1 ? 'Next Question' : 'Submit Answers'}
+          NEXT QUESTION
         </Button>
       </Paper>
     </Box>

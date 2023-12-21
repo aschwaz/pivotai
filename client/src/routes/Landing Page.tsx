@@ -111,7 +111,7 @@ function LandingPage() {
         <TextField
           fullWidth
           variant="filled"
-          label="What are you skilled in now? And what type of products do you want to build?"
+          label="What’s your background? Where do you see yourself in product management?"
           margin="normal"
           multiline
           minRows={2}
