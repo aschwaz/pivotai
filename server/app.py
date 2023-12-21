@@ -43,8 +43,10 @@ def process_answers():
     answers = request.json.get('answers')
     print(answers)
     # Grade the answers using the modified grading logic
+    # TODO: Modify invocation of `grade_answers()` so it can take in 
+    #       parameter for `questions` as illustrated by output of `generate_assessment_questions()`
     graded_scores = grade_answers(answers)
-    
+    print(graded_scores)
 
     
     # Create a skill graph data structure based on the graded scores
